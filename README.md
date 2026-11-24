@@ -36,6 +36,15 @@ Os dados ficam salvos no próprio navegador (localStorage), e dá para exportar 
 - F2: renomear · Delete: excluir
 - Arrastar e soltar: mover para outra pasta (inclusive na árvore lateral e no caminho do topo)
 
+### No celular
+
+O sistema funciona no navegador do celular (Chrome, Safari…). Toque em uma pasta ou cronograma para abrir
+e use o botão **⋯** de cada item para renomear, mover, duplicar ou excluir (no celular não há clique direito).
+O botão **☰** no topo mostra a árvore de pastas.
+
+Os dados ficam salvos em cada navegador separadamente. Para levar seus cronogramas do PC para o celular:
+clique em **Exportar** no PC, envie o arquivo `.json` para o celular (WhatsApp, e-mail, Drive…) e use **Importar** no celular.
+
 ### Backup
 
 Use **Exportar** no topo para baixar todos os dados em JSON e **Importar** para restaurá-los

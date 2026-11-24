@@ -482,7 +482,7 @@
           </div>
         </div>
         <nav class="tabs" role="tablist">
-          ${TABS.map((t) => `<a role="tab" href="#/cronograma/${s.id}/${t.id}" class="tab ${t.id === tab ? 'on' : ''}" aria-selected="${t.id === tab}"><span>${t.icon}</span> ${t.label}</a>`).join('')}
+          ${TABS.map((t) => `<a role="tab" href="#/cronograma/${s.id}/${t.id}" class="tab ${t.id === tab ? 'on' : ''}" aria-selected="${t.id === tab}"><span class="tab-ico">${t.icon} </span>${t.label}</a>`).join('')}
         </nav>
         <section id="tab-body" class="tab-body"></section>
       </div>`;

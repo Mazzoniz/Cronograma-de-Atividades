@@ -282,6 +282,7 @@
         <div class="item-col">${st.count}</div>
         <div class="item-col">${U.pct(st.progress)}</div>
         <div class="item-col">${new Date(s.updatedAt).toLocaleDateString('pt-BR')}</div>
+        <button type="button" class="item-more" aria-label="Mais opções" title="Mais opções">⋯</button>
       </div>`;
   }
 
@@ -299,6 +300,7 @@
         <div class="item-col">${c.schedules}</div>
         <div class="item-col"></div>
         <div class="item-col">${new Date(f.createdAt).toLocaleDateString('pt-BR')}</div>
+        <button type="button" class="item-more" aria-label="Mais opções" title="Mais opções">⋯</button>
       </div>`;
   }
 
@@ -309,6 +311,7 @@
       };
       el.addEventListener('dblclick', open);
       el.addEventListener('click', (e) => {
+        if (e.target.closest('.item-more')) { e.stopPropagation(); itemMenu(e, el.dataset.kind, el.dataset.id); return; }
         main.querySelectorAll('.item.selected').forEach((x) => x.classList.remove('selected'));
         el.classList.add('selected');
         // toque único em telas sem mouse abre direto
@@ -371,7 +374,7 @@
             ${folders.map(folderCard).join('')}
             ${schedules.map(scheduleCard).join('')}
           </div>`}
-        <p class="muted small explorer-tip">Dica: clique duas vezes para abrir · clique direito para mais opções · arraste itens para dentro de pastas.</p>
+        <p class="muted small explorer-tip">Dica: clique duas vezes para abrir · clique direito ou ⋯ para mais opções · arraste itens para dentro de pastas.</p>
       </div>`;
 
     const nf = main.querySelector('#ex-new-folder');
