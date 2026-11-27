@@ -211,9 +211,9 @@
   }
 
   /* ---------- tela ---------- */
-  function render(sector, id) {
+  function render(sector, id, tab = 'grade') {
     const s = Store.schedule(id);
-    if (!s || s.sectorId !== sector.id) { location.hash = `#/s/${sector.id}/cronogramas`; return; }
+    if (!s || s.sectorId !== sector.id || !Z.inScope(s)) { location.hash = `${Z.base()}/cronogramas`; return; }
     const st = C.stats(s.activities);
     const el = Shell.render(sector, 'cronogramas', {
       title: U.esc(s.title),
@@ -232,43 +232,33 @@
           <span class="pill muted-pill">Atualizado em ${U.fmtDateTime(s.updatedAt)}</span>
         </div>
         ${s.description ? `<p class="muted desc">${U.esc(s.description)}</p>` : ''}
-        <div class="kpis kpis-sm">
+        <nav class="tabs">
+          <a href="${Z.base()}/c/${s.id}" class="tab ${tab !== 'dash' ? 'on' : ''}">${UI.icon('list', 17)} Grade</a>
+          <a href="${Z.base()}/c/${s.id}/dash" class="tab ${tab === 'dash' ? 'on' : ''}">${UI.icon('dashboard', 17)} Dashboard deste cronograma</a>
+        </nav>
+        ${tab === 'dash' ? '' : `<div class="kpis kpis-sm">
           <div class="kpi"><small>Atividades</small><b>${st.count}</b><span>${st.done} concluídas${st.postponed ? ` · ${st.postponed} postergadas` : ''}</span></div>
           <div class="kpi"><small>Horas planejadas</small><b>${U.hours(st.plan)}</b><span>${U.num(st.planHH)} HH</span></div>
           <div class="kpi"><small>Horas realizadas</small><b>${U.hours(st.real)}</b><span>${U.num(st.realHH)} HH</span></div>
           <div class="kpi"><small>Progresso</small><b>${st.progress == null ? '—' : U.pct(st.progress)}</b><span>realizado ÷ planejado</span></div>
           <div class="kpi"><small>Backlog</small><b>${U.hours(st.backlog)}</b><span>horas ainda não realizadas</span></div>
-        </div>
+        </div>`}
       </div>
-      <div class="toolbar sticky-tools">
+      ${tab === 'dash' ? '<div id="sched-dash"></div>' : `<div class="toolbar sticky-tools">
         ${palette()}
         <span class="spacer"></span>
         <div class="search-box sm">${UI.icon('search', 15)}<input type="search" id="s-q" placeholder="Filtrar…" value="${U.esc(filter)}"></div>
         <button class="btn btn-primary" id="s-add">${UI.icon('plus', 17)}<span>Nova atividade</span></button>
       </div>
       <div class="grid-wrap" id="grid-wrap">${gridHtml(s)}</div>
-      <p class="muted small tip">Escolha um código acima e clique (ou arraste) nos dias. Clicar de novo no mesmo código apaga. Clique no número do dia para marcá-lo como feriado. Atividades "por horas": dois cliques no dia para lançar as horas.</p>`;
+      <p class="muted small tip">Escolha um código acima e clique (ou arraste) nos dias. Clicar de novo no mesmo código apaga. Clique no número do dia para marcá-lo como feriado. Atividades "por horas": dois cliques no dia para lançar as horas.</p>`}`;
 
+    if (tab === 'dash') { bindHead(s); DashboardView.scheduleDash(s, el.querySelector('#sched-dash')); return; }
     bind(s, el);
   }
 
   function bind(s, el) {
-    document.getElementById('s-edit').addEventListener('click', () => Drive.scheduleForm(s.sectorId, s));
-    document.getElementById('s-print').addEventListener('click', () => Print.dialog(s));
-    document.getElementById('s-xls').addEventListener('click', () => Excel.exportSchedule(s));
-    document.getElementById('s-more').addEventListener('click', (e) => UI.menuAt(e.currentTarget, [
-      { label: 'Editar título / período / feriados', icon: 'edit', action: () => Drive.scheduleForm(s.sectorId, s) },
-      { label: 'Mover para outra pasta', icon: 'folder', action: () => Drive.moveDialog('schedule', s.id) },
-      { label: 'Duplicar (sem realizado)', icon: 'copy', action: () => { const c = Store.duplicateSchedule(s.id); location.hash = `#/s/${s.sectorId}/c/${c.id}`; } },
-      { label: 'Ver no Gantt', icon: 'gantt', action: () => { sessionStorage.setItem('zeit:gantt', s.id); location.hash = `#/s/${s.sectorId}/gantt`; } },
-      { label: 'Limpar todas as marcações de realizado', icon: 'swap', action: async () => {
-        if (await UI.confirm('Apagar todas as marcações da linha <b>Real.</b> deste cronograma?', { title: 'Limpar realizado', okLabel: 'Limpar' })) {
-          s.activities.forEach((a) => { a.real = {}; }); Store.touch(s);
-        }
-      } },
-      { divider: true },
-      { label: 'Excluir cronograma', icon: 'trash', danger: true, action: () => Drive.remove('schedule', s.id) },
-    ]));
+    bindHead(s);
     el.querySelector('#s-add').addEventListener('click', () => activityForm(s));
     el.querySelector('#s-q').addEventListener('input', U.debounce((e) => {
       filter = e.target.value;
@@ -280,6 +270,25 @@
       el.querySelectorAll('[data-tool]').forEach((x) => x.classList.toggle('on', x === b));
     }));
     bindGrid(s, el);
+  }
+
+  function bindHead(s) {
+    document.getElementById('s-edit').addEventListener('click', () => Drive.scheduleForm(s.sectorId, s));
+    document.getElementById('s-print').addEventListener('click', () => Print.dialog(s));
+    document.getElementById('s-xls').addEventListener('click', () => Excel.exportSchedule(s));
+    document.getElementById('s-more').addEventListener('click', (e) => UI.menuAt(e.currentTarget, [
+      { label: 'Editar título / período / feriados', icon: 'edit', action: () => Drive.scheduleForm(s.sectorId, s) },
+      { label: 'Mover para outra pasta', icon: 'folder', action: () => Drive.moveDialog('schedule', s.id) },
+      { label: 'Duplicar (sem realizado)', icon: 'copy', action: () => { const c = Store.duplicateSchedule(s.id); location.hash = `${Z.base()}/c/${c.id}`; } },
+      { label: 'Ver no Gantt', icon: 'gantt', action: () => { sessionStorage.setItem('zeit:gantt', s.id); location.hash = `${Z.base()}/gantt`; } },
+      { label: 'Limpar todas as marcações de realizado', icon: 'swap', action: async () => {
+        if (await UI.confirm('Apagar todas as marcações da linha <b>Real.</b> deste cronograma?', { title: 'Limpar realizado', okLabel: 'Limpar' })) {
+          s.activities.forEach((a) => { a.real = {}; }); Store.touch(s);
+        }
+      } },
+      { divider: true },
+      { label: 'Excluir cronograma', icon: 'trash', danger: true, action: () => Drive.remove('schedule', s.id) },
+    ]));
   }
 
   function bindGrid(s, el) {

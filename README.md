@@ -12,12 +12,26 @@ Funciona sem internet. A biblioteca de Excel fica dentro do projeto, em `vendor/
 
 ## Organização
 
-**Setor → Pastas → Cronogramas**, como um drive:
+**Setor → Subpasta → Sistema (pastas e cronogramas)**:
 
-1. Na tela inicial, escolha o **setor** (Manutenção Site, Armação, Montagem, Estamparia… ou crie outros).
-2. Em **Cronogramas**, crie pastas (ex.: `2026`) e subpastas. Arraste itens para mover e use o clique direito para mais opções.
-3. Crie um cronograma com o **título** (o feriado ou a ação) e as **semanas inicial e final (KW)**. O sistema mostra
-   as datas e os meses correspondentes. Os dias de **feriado ou parada** ficam destacados em laranja.
+1. **Setor:** na tela inicial, escolha o setor (Manutenção Site, Armação, Montagem, Estamparia…) ou crie outro.
+   O ícone do setor pode ser um dos ícones prontos ou uma **imagem enviada** (ex.: logo da área), em *⋯ → Editar setor*.
+2. **Subpasta:** dentro do setor, escolha uma subpasta existente (ex.: `Paradas 2026`) ou crie uma nova.
+   Só depois disso o sistema abre, e tudo dentro dele (dashboard, kanban, Gantt, relatórios…) mostra apenas
+   o conteúdo dessa subpasta. Para trocar, use *Trocar subpasta* no menu lateral.
+3. **Cronogramas:** dentro da subpasta, crie pastas e cronogramas como num drive. O cronograma tem o **título**
+   (o feriado ou a ação) e as **semanas inicial e final (KW)**. Os dias de **feriado ou parada** ficam em laranja.
+
+## Dashboards
+
+- **Um dashboard para cada cronograma:** em *Dashboard*, escolha o cronograma na faixa do topo (Carnaval,
+  Férias Coletivas…). Cada um mostra seus próprios números: progresso, horas e HH realizados, backlog,
+  homens alocados, HH por dia, **curva S**, situação, horas por responsável e por fornecedor, e pendências
+  com observações. O mesmo painel aparece na aba *Dashboard deste cronograma*, dentro de cada cronograma.
+- Pelo **⋯** de cada cronograma na faixa dá para abrir, renomear, mudar o período, mover, duplicar,
+  imprimir, exportar ou excluir.
+- **Visão geral:** junta os cronogramas da subpasta no ano, com MTBF, MTTR, disponibilidade, aderência
+  e um comparativo entre cronogramas.
 
 ## A grade do cronograma
 
@@ -51,7 +65,7 @@ dia a dia com **Mês / KW / dia** no cabeçalho, e **Progresso**.
 
 | Tela | O que mostra |
 |---|---|
-| **Dashboard** | MTBF, MTTR, disponibilidade, aderência ao plano, horas e HH realizados, backlog, gráficos e cronogramas recentes |
+| **Dashboard** | Um painel por cronograma, mais a visão geral da subpasta (MTBF, MTTR, disponibilidade, aderência, HH) |
 | **Cronogramas** | Drive de pastas e cronogramas |
 | **Todas Atividades** | Lista de atividades do setor com filtros |
 | **Kanban** | Atividades por situação; arraste o cartão para mudar a situação |
@@ -95,4 +109,7 @@ js/excel.js           Importação e exportação de Excel
 js/print.js           Versões para impressão
 js/views/*.js         Telas
 js/app.js             Rotas
+js/scope.js           Setor + subpasta abertos no momento
+js/seed-data.js       Dados iniciais gerados das planilhas em exemplos/
+exemplos/             Planilhas reais usadas como exemplo (Carnaval KW08, Férias Coletivas KW50)
 ```

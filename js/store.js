@@ -23,74 +23,38 @@
 
   const SECTOR_ICONS = ['🔧', '🏗️', '🔩', '⚡', '🏭', '🛠️', '⚙️', '🔌', '🧰', '🚚', '🧪', '📦'];
 
-  /* ---------- exemplo inicial (baseado na planilha Carnaval KW08) ---------- */
+  /* ---------- dados iniciais: planilhas reais de exemplos/ (js/seed-data.js) ---------- */
   function seed() {
     const now = new Date().toISOString();
     const sManut = U.uid(), sArm = U.uid(), sMont = U.uid(), sEst = U.uid();
-    const f2026 = U.uid(), f2025 = U.uid();
-    const mk = (description, supplier, responsible, situation, hoursPerDay, plan, real, extra = {}) => ({
-      id: U.uid(), description, supplier, responsible, situation, fullDay: true, hoursPerDay,
-      menEnabled: false, men: 1, note: '',
-      plan: Object.fromEntries(plan.map((d) => [d, { c: 'PL' }])),
-      real: Object.fromEntries(real.map(([d, c]) => [d, { c }])),
-      ...extra,
-    });
-    const D = (n) => `2026-02-${U.pad(n)}`;
-    const carnaval = {
-      id: U.uid(), sectorId: sManut, folderId: f2026,
-      title: 'Carnaval - KW 08 - 2026', description: 'Exemplo importado da planilha de Carnaval.',
-      start: { year: 2026, week: 7 }, end: { year: 2026, week: 8 },
-      holidays: [D(16), D(17)],
-      createdAt: now, updatedAt: now,
-      activities: [
-        mk('Manutenção Preventiva Sistema Proteção contra Incêndio ESTA CO2', 'Minimax', 'J. Coelho', 'Concluído', 8, [D(16), D(17)], [[D(16), 'R'], [D(17), 'R']]),
-        mk('Adequar Infraestrutura Redes Ar Comprimido Utilidades', 'Tech Chiller', 'R. Macedo', 'Realizado', 8,
-          [D(15), D(16), D(17), D(18), D(19), D(20)], [[D(15), 'R'], [D(16), 'R'], [D(17), 'N'], [D(18), 'R'], [D(19), 'R'], [D(20), 'R']], { menEnabled: true, men: 3 }),
-        mk('Desligamento rede Ar Comprimido 7/9 bar e 12 bar (18:00 às 06:00)', 'In Haus', 'R. Macedo', 'Concluído', 3, [D(15), D(16)], [[D(15), 'R'], [D(16), 'R']]),
-        mk('Adequar Tubulação Água Resfriada CP01', 'Tech Chiller', 'R. Macedo', 'Postergado', 8, [D(15), D(16)], [[D(15), 'PO'], [D(16), 'PO']],
-          { note: 'Serviço postergado: aguardando peças do fornecedor.' }),
-        mk('Desligar rede Água Gelada', 'In Haus', 'R. Macedo', 'Concluído', 4, [D(15)], [[D(15), 'R']]),
-        mk('Troca de válvulas de Água Gelada', 'In Haus', 'M. Novellino', 'Concluído', 8, [D(15)], [[D(15), 'R']], { menEnabled: true, men: 2 }),
-        mk('Barramento Bufferizado - Armação Painel NS coluna D11 (desligamento após 15 hs)', 'In Haus', 'R. Macedo', 'Concluído', 8, [D(14)], [[D(14), 'R']]),
-        mk('Manutenção CP03 Corretiva', 'Air Power', 'R. Macedo', 'Concluído', 8, [D(16), D(17)], [[D(16), 'R'], [D(17), 'R'], [D(18), 'R']]),
-        mk('Adequar Infraestrutura Redes Ar Comprimido VW Eixos (elétrica)', 'Tech Chiller', 'R. Macedo', 'Concluído', 8, [D(14), D(16), D(17)], [[D(14), 'R'], [D(16), 'R'], [D(17), 'R']]),
-        mk('Relatório Ambiental Declaração de Carga Poluidora', 'VW', 'A. Espinosa', 'Concluído', 8, [D(14)], [[D(14), 'R']]),
-      ],
+    const ws2026 = U.uid(), ws2025 = U.uid();
+    const fromSeed = (key, folderId) => {
+      const d = (window.ZEIT_SEED || {})[key];
+      if (!d) return null;
+      return {
+        id: U.uid(), sectorId: sManut, folderId, title: d.title, description: `Importado de ${d.file}`,
+        start: d.start, end: d.end, holidays: d.holidays || [], createdAt: now, updatedAt: now,
+        activities: d.activities.map((a) => ({ ...a, id: U.uid() })),
+      };
     };
-    const ferias = {
-      id: U.uid(), sectorId: sManut, folderId: f2026,
-      title: 'Férias Coletivas - KW 50 a 02 - 2026/2027', description: 'Cronograma ainda sem datas definidas — marque os dias conforme forem programados.',
-      start: { year: 2026, week: 50 }, end: { year: 2027, week: 2 },
-      holidays: ['2026-12-24', '2026-12-25', '2026-12-31', '2027-01-01'],
-      createdAt: now, updatedAt: now,
-      activities: [
-        mk('Análise de vibração 30 AHUs', 'Predponta', 'L. Arruda', 'auto', 8, ['2026-12-21', '2026-12-22', '2026-12-23'], []),
-        mk('Roof-Tops Cêra e Bloco-B. Manutenção', 'Tech-Chiller', 'Diego', 'auto', 8, ['2026-12-28', '2026-12-29'], [], { menEnabled: true, men: 4 }),
-        mk('Troca das telhas da Pintura-A e prolongar duto de exaustão', 'In-Haus', 'Fernando', 'auto', 8, [], []),
-      ],
-    };
+    const schedules = [fromSeed('carnaval', ws2026), fromSeed('ferias', ws2026)].filter(Boolean);
     return {
-      version: 1,
+      version: 2,
       settings: { theme: 'light', opHoursPerDay: 24, defaultHours: 8 },
       sectors: [
-        { id: sManut, name: 'Manutenção Site', description: 'Preventiva, Corretiva, Preditiva', icon: '🔧', people: [
-          { id: U.uid(), name: 'R. Macedo', role: 'Técnico' }, { id: U.uid(), name: 'J. Coelho', role: 'Técnico' },
-          { id: U.uid(), name: 'M. Novellino', role: 'Técnico' }, { id: U.uid(), name: 'A. Espinosa', role: 'Meio ambiente' },
-        ] },
-        { id: sArm, name: 'Armação', description: 'Estruturas, Soldas, Ferragens', icon: '🏗️', people: [] },
-        { id: sMont, name: 'Montagem', description: 'Linha de Produção, Assemblagem', icon: '🔩', people: [] },
-        { id: sEst, name: 'Estamparia', description: 'Prensas, Moldes, Conformação', icon: '⚡', people: [] },
+        { id: sManut, name: 'Manutenção Site', description: 'Preventiva, Corretiva, Preditiva', icon: '🔧', image: null, people: [] },
+        { id: sArm, name: 'Armação', description: 'Estruturas, Soldas, Ferragens', icon: '🏗️', image: null, people: [] },
+        { id: sMont, name: 'Montagem', description: 'Linha de Produção, Assemblagem', icon: '🔩', image: null, people: [] },
+        { id: sEst, name: 'Estamparia', description: 'Prensas, Moldes, Conformação', icon: '⚡', image: null, people: [] },
       ],
       folders: [
-        { id: f2026, sectorId: sManut, parentId: null, name: '2026', createdAt: now },
-        { id: f2025, sectorId: sManut, parentId: null, name: '2025', createdAt: now },
+        { id: ws2026, sectorId: sManut, parentId: null, name: 'Paradas 2026', description: 'Feriados, Carnaval e férias coletivas', createdAt: now },
+        { id: ws2025, sectorId: sManut, parentId: null, name: 'Paradas 2025', description: '', createdAt: now },
       ],
-      schedules: [carnaval, ferias],
+      schedules,
       failures: [
-        { id: U.uid(), sectorId: sManut, equipment: 'Compressor CP03', start: '2026-10-06T08:00', end: '2026-10-06T11:30', description: 'Falha no pressostato', type: 'Mecânica' },
-        { id: U.uid(), sectorId: sManut, equipment: 'Chiller 02', start: '2026-10-19T14:00', end: '2026-10-19T16:00', description: 'Alarme de alta pressão', type: 'Elétrica' },
-        { id: U.uid(), sectorId: sManut, equipment: 'Compressor CP03', start: '2026-11-03T06:30', end: '2026-11-03T08:00', description: 'Vazamento na linha', type: 'Mecânica' },
-        { id: U.uid(), sectorId: sManut, equipment: 'AHU-009', start: '2026-11-12T10:00', end: '2026-11-12T13:00', description: 'Correia rompida', type: 'Mecânica' },
+        { id: U.uid(), sectorId: sManut, wsId: ws2026, equipment: 'Compressor CP03', start: '2026-10-06T08:00', end: '2026-10-06T11:30', description: 'Exemplo — falha no pressostato', type: 'Mecânica' },
+        { id: U.uid(), sectorId: sManut, wsId: ws2026, equipment: 'Chiller 02', start: '2026-10-19T14:00', end: '2026-10-19T16:00', description: 'Exemplo — alarme de alta pressão', type: 'Elétrica' },
       ],
     };
   }
@@ -99,6 +63,12 @@
     s.settings = Object.assign({ theme: 'light', opHoursPerDay: 24, defaultHours: 8 }, s.settings || {});
     s.sectors = s.sectors || []; s.folders = s.folders || []; s.schedules = s.schedules || []; s.failures = s.failures || [];
     s.sectors.forEach((x) => { x.people = x.people || []; });
+    // cronogramas soltos na raiz do setor vão para a subpasta "Geral"
+    s.schedules.filter((sc) => !sc.folderId).forEach((sc) => {
+      let g = s.folders.find((f) => f.sectorId === sc.sectorId && !f.parentId && f.name === 'Geral');
+      if (!g) { g = { id: U.uid(), sectorId: sc.sectorId, parentId: null, name: 'Geral', description: '', createdAt: new Date().toISOString() }; s.folders.push(g); }
+      sc.folderId = g.id;
+    });
     s.schedules.forEach((sc) => {
       sc.holidays = sc.holidays || [];
       sc.activities = sc.activities || [];
@@ -138,9 +108,9 @@
     .filter((f) => f.sectorId === sectorId && (f.parentId || null) === (parentId || null))
     .sort((a, b) => {
       // pastas com nome de ano (2026, 2025…) aparecem da mais recente para a mais antiga
-      const na = /^\d{4}$/.test(a.name), nb = /^\d{4}$/.test(b.name);
-      if (na && nb) return b.name.localeCompare(a.name);
-      if (na !== nb) return na ? -1 : 1;
+      const ya = (a.name.match(/\b(19|20)\d{2}\b/) || [])[0], yb = (b.name.match(/\b(19|20)\d{2}\b/) || [])[0];
+      if (ya && yb && ya !== yb) return yb.localeCompare(ya);
+      if (!!ya !== !!yb) return ya ? -1 : 1;
       return a.name.localeCompare(b.name, 'pt-BR', { numeric: true });
     });
   const schedulesIn = (sectorId, folderId) => state.schedules
@@ -174,7 +144,7 @@
     return { folders: ids.size - 1, schedules: state.schedules.filter((s) => ids.has(s.folderId)).length };
   }
   function move(kind, id, target) {
-    target = target || null;
+    target = target || Z.rootId();
     if (kind === 'folder') {
       if (target && descendantFolderIds(id).has(target)) return false;
       const f = folder(id); if (!f || f.parentId === target) return false; f.parentId = target;
@@ -191,7 +161,7 @@
   function createSchedule(data) {
     const now = new Date().toISOString();
     const s = {
-      id: U.uid(), sectorId: data.sectorId, folderId: data.folderId || null,
+      id: U.uid(), sectorId: data.sectorId, folderId: data.folderId || Z.rootId(),
       title: data.title.trim(), description: (data.description || '').trim(),
       start: data.start, end: data.end, holidays: data.holidays || [],
       createdAt: now, updatedAt: now, activities: data.activities || [],
@@ -216,10 +186,10 @@
   }
 
   /* ---------- ocorrências (falhas) ---------- */
-  const failuresOf = (sectorId) => state.failures.filter((f) => f.sectorId === sectorId).sort((a, b) => b.start.localeCompare(a.start));
+  const failuresOf = (sectorId) => state.failures.filter((f) => f.sectorId === sectorId && (!Z.ws || !f.wsId || f.wsId === Z.ws.id)).sort((a, b) => b.start.localeCompare(a.start));
   function saveFailure(data) {
     const ex = state.failures.find((f) => f.id === data.id);
-    if (ex) Object.assign(ex, data); else state.failures.push({ ...data, id: U.uid() });
+    if (ex) Object.assign(ex, data); else state.failures.push({ ...data, id: U.uid(), wsId: Z.ws ? Z.ws.id : null });
     save();
   }
   function deleteFailure(id) { state.failures = state.failures.filter((f) => f.id !== id); save(); }

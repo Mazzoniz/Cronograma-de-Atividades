@@ -22,14 +22,17 @@
     app.innerHTML = `
       <aside class="sidebar" id="sidebar">
         <a class="brand" href="#/">${brandMark()}<span>Zeit</span></a>
-        <div class="sector-box">
-          <span class="sector-ico">${sector.icon || '🏭'}</span>
-          <div class="sector-txt"><small>Setor</small><strong>${U.esc(sector.name)}</strong></div>
-        </div>
+        <a class="sector-box" href="#/s/${sector.id}" title="Trocar de subpasta">
+          <span class="sector-ico">${UI.sectorIcon(sector)}</span>
+          <div class="sector-txt"><small>${U.esc(sector.name)}</small><strong>${UI.icon('folder', 15)} ${U.esc(Z.ws ? Z.ws.name : '')}</strong></div>
+        </a>
         <nav class="nav">
-          ${NAV.map((n) => `<a href="#/s/${sector.id}/${n.id}" class="${n.id === active ? 'on' : ''}" ${n.hint ? `title="${n.hint}"` : ''}>${UI.icon(n.icon)}<span>${n.label}</span></a>`).join('')}
+          ${NAV.map((n) => `<a href="${Z.base()}/${n.id}" class="${n.id === active ? 'on' : ''}" ${n.hint ? `title="${n.hint}"` : ''}>${UI.icon(n.icon)}<span>${n.label}</span></a>`).join('')}
         </nav>
-        <a class="nav-switch" href="#/">${UI.icon('swap', 16)}<span>Trocar setor</span></a>
+        <div class="nav-foot">
+          <a class="nav-switch" href="#/s/${sector.id}">${UI.icon('folder', 16)}<span>Trocar subpasta</span></a>
+          <a class="nav-switch" href="#/">${UI.icon('swap', 16)}<span>Trocar setor</span></a>
+        </div>
       </aside>
       <div class="sidebar-scrim" id="scrim"></div>
       <div class="main">

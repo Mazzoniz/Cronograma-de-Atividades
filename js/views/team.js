@@ -10,7 +10,7 @@
         <label class="field">Função <span class="opt">(opcional)</span><input name="role" maxlength="80" value="${U.esc(p.role || '')}" placeholder="Ex.: Eletricista"></label>`,
       onOpen(f) {
         const del = f.querySelector('#p-del');
-        if (del) del.addEventListener('click', () => { sector.people = sector.people.filter((x) => x.id !== p.id); Store.save(); f.close(); });
+        if (del) del.addEventListener('click', () => { const i = sector.people.findIndex((x) => x.id === p.id); if (i >= 0) sector.people.splice(i, 1); Store.save(); f.close(); });
       },
       onSubmit(d) {
         if (existing) Object.assign(existing, { name: d.name.trim(), role: d.role.trim() });
@@ -91,7 +91,7 @@
           <tbody>${scheds.map((s) => { const x = C.stats(s.activities); return `<tr class="clickable" data-s="${s.id}"><td>${U.esc(s.title)}</td><td>${U.esc(C.periodLabel(s))}</td><td class="num">${x.count}</td><td class="num">${U.hours(x.plan)}</td><td class="num">${U.hours(x.real)}</td><td class="num">${U.num(x.realHH)}</td><td class="num">${U.hours(x.backlog)}</td><td>${UI.progress(x.progress)}</td></tr>`; }).join('') || '<tr><td colspan="8" class="muted center">Sem cronogramas neste ano.</td></tr>'}</tbody>
         </table></div></section>`;
     Charts.bindTips(el);
-    el.querySelectorAll('tr[data-s]').forEach((tr) => tr.addEventListener('click', () => { location.hash = `#/s/${sector.id}/c/${tr.dataset.s}`; }));
+    el.querySelectorAll('tr[data-s]').forEach((tr) => tr.addEventListener('click', () => { location.hash = `${Z.base()}/c/${tr.dataset.s}`; }));
     document.getElementById('dash-year').addEventListener('change', (e) => { sessionStorage.setItem('zeit:year', e.target.value); analytics(sector); });
   }
 

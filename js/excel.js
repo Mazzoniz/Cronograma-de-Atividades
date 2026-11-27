@@ -195,7 +195,7 @@
       body: `<p class="muted">Selecione um ou mais arquivos <b>.xlsx</b> no layout das planilhas de atividades (colunas N°, Descrição, Fornecedor, Responsável, Situação, P/R, Horas e a grade de dias). Cada aba vira um cronograma.</p>
         <label class="field">Arquivos<input type="file" name="files" accept=".xlsx" multiple required></label>
         <div class="grid-2">
-          <label class="field">Setor<select name="sector" id="imp-sector">${sectors.map((s) => `<option value="${s.id}" ${s.id === sectorId ? 'selected' : ''}>${U.esc(s.name)}</option>`).join('')}</select></label>
+          <label class="field">Setor<select name="sector" id="imp-sector" ${Z.ws ? 'disabled' : ''}>${sectors.map((s) => `<option value="${s.id}" ${s.id === sectorId ? 'selected' : ''}>${U.esc(s.name)}</option>`).join('')}</select>${Z.ws ? `<input type="hidden" name="sector" value="${sectorId}">` : ''}</label>
           <label class="field">Pasta de destino<select name="folder" id="imp-folder">${UI.folderOptions(sectorId, folderId)}</select></label>
         </div>
         <label class="check"><input type="checkbox" name="byYear" checked> <span>Organizar em pastas por ano automaticamente (ex.: 2025, 2026)</span></label>
@@ -215,7 +215,7 @@
               const res = await readFile(file);
               for (const r of res) {
                 if (!r.ok) { lines.push(`<li class="err">✕ ${U.esc(file.name)} (${U.esc(r.sheet)}): ${U.esc(r.error)}</li>`); continue; }
-                let target = d.folder || null;
+                let target = d.folder || Z.rootId();
                 if (d.byYear) {
                   const y = String(U.yearOf(r.firstDate));
                   let fd = Store.state.folders.find((x) => x.sectorId === d.sector && (x.parentId || null) === (target || null) && x.name === y);
@@ -233,7 +233,7 @@
           btn.textContent = 'Concluir';
           f.onsubmit = null;
           btn.type = 'button';
-          btn.onclick = () => { f.close(); if (created === 1 && lastId) location.hash = `#/s/${d.sector}/c/${lastId}`; else location.hash = `#/s/${d.sector}/cronogramas`; };
+          btn.onclick = () => { f.close(); if (created === 1 && lastId) location.hash = `${Z.base()}/c/${lastId}`; else location.hash = `${Z.base()}/cronogramas`; };
           UI.toast(`${U.plural(created, 'cronograma importado', 'cronogramas importados')}`);
         })();
         return false;
@@ -393,7 +393,7 @@
     const used = new Set();
     list.forEach((s) => writeSheet(wb, s, sheetName(s.title, used)));
     legendSheet(wb);
-    await save(wb, `Zeit - ${UI.safeName(sector.name)} - cronogramas.xlsx`);
+    await save(wb, `Zeit - ${UI.safeName(sector.name)}${Z.ws ? ` - ${UI.safeName(Z.ws.name)}` : ''} - cronogramas.xlsx`);
     UI.toast('Planilha exportada');
   }
 

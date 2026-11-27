@@ -153,6 +153,19 @@
 
   /* <option>s de pastas de um setor */
   function folderOptions(sectorId, selected, exclude) {
+    if (Z.ws && Z.ws.sectorId === sectorId) {
+      // dentro do sistema: a raiz é a subpasta escolhida
+      const root = Z.ws;
+      const sel = selected || root.id;
+      const out = [`<option value="${root.id}" ${sel === root.id ? 'selected' : ''}>📂 ${U.esc(root.name)} (raiz)</option>`];
+      const walk = (pid, depth) => Store.childFolders(sectorId, pid).forEach((f) => {
+        if (exclude && exclude.has(f.id)) return;
+        out.push(`<option value="${f.id}" ${f.id === sel ? 'selected' : ''}>${'\u00a0\u00a0\u00a0\u00a0'.repeat(depth)}📁 ${U.esc(f.name)}</option>`);
+        walk(f.id, depth + 1);
+      });
+      walk(root.id, 1);
+      return out.join('');
+    }
     const out = [`<option value="" ${!selected ? 'selected' : ''}>Raiz do setor</option>`];
     const walk = (pid, depth) => Store.childFolders(sectorId, pid).forEach((f) => {
       if (exclude && exclude.has(f.id)) return;
@@ -177,5 +190,33 @@
     return `<span class="prog ${cls}"><span class="prog-bar"><i style="width:${w}%"></i></span><b>${U.pct(pct)}</b></span>`;
   }
 
-  window.UI = { icon, modal, confirm, prompt, toast, menu, menuAt, hideMenu, download, safeName, applyTheme, toggleTheme, folderOptions, codeChip, sitBadge, progress };
+  /** ícone do setor: imagem enviada ou emoji */
+  function sectorIcon(sector) {
+    if (sector && sector.image) return `<img class="sector-img" src="${sector.image}" alt="">`;
+    return U.esc((sector && sector.icon) || '🏭');
+  }
+
+  /** lê uma imagem e reduz para no máximo `max` px (salva como dataURL leve) */
+  function readImage(file, max = 160) {
+    return new Promise((resolve, reject) => {
+      if (!file || !/^image\//.test(file.type)) { reject(new Error('Escolha um arquivo de imagem (PNG, JPG, SVG…).')); return; }
+      const fr = new FileReader();
+      fr.onerror = () => reject(new Error('Não foi possível ler a imagem.'));
+      fr.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Imagem inválida.'));
+        img.onload = () => {
+          const k = Math.min(1, max / Math.max(img.width, img.height));
+          const cv = document.createElement('canvas');
+          cv.width = Math.max(1, Math.round(img.width * k)); cv.height = Math.max(1, Math.round(img.height * k));
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          resolve(cv.toDataURL('image/png'));
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  window.UI = { sectorIcon, readImage, icon, modal, confirm, prompt, toast, menu, menuAt, hideMenu, download, safeName, applyTheme, toggleTheme, folderOptions, codeChip, sitBadge, progress };
 })();

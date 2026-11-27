@@ -75,7 +75,7 @@
         } else {
           const c = Store.createSchedule({ sectorId, folderId: d.folderId || null, title: d.title, description: d.description, start: a, end: b, holidays: hol });
           UI.toast('Cronograma criado');
-          location.hash = `#/s/${sectorId}/c/${c.id}`;
+          location.hash = `${Z.base()}/c/${c.id}`;
         }
       },
     });
@@ -98,12 +98,12 @@
       const extra = c.folders || c.schedules ? `<br><br>Isso também exclui ${[c.folders ? U.plural(c.folders, 'subpasta', 'subpastas') : '', c.schedules ? U.plural(c.schedules, 'cronograma', 'cronogramas') : ''].filter(Boolean).join(' e ')}.` : '';
       if (!(await UI.confirm(`Excluir a pasta <b>${U.esc(f.name)}</b>?${extra}`, { title: 'Excluir pasta' }))) return;
       Store.deleteFolder(id); UI.toast('Pasta excluída');
-      if (location.hash.includes(id)) location.hash = `#/s/${f.sectorId}/cronogramas${f.parentId ? `/${f.parentId}` : ''}`;
+      if (location.hash.includes(id)) location.hash = `${Z.base()}/cronogramas${f.parentId && f.parentId !== Z.rootId() ? `/${f.parentId}` : ''}`;
     } else {
       const s = Store.schedule(id);
       if (!(await UI.confirm(`Excluir o cronograma <b>${U.esc(s.title)}</b> e todas as suas atividades?`, { title: 'Excluir cronograma' }))) return;
       Store.deleteSchedule(id); UI.toast('Cronograma excluído');
-      if (location.hash.includes(id)) location.hash = `#/s/${s.sectorId}/cronogramas${s.folderId ? `/${s.folderId}` : ''}`;
+      if (location.hash.includes(id)) location.hash = `${Z.base()}/cronogramas${s.folderId && s.folderId !== Z.rootId() ? `/${s.folderId}` : ''}`;
     }
   }
   function moveDialog(kind, id) {
@@ -118,13 +118,14 @@
     e.preventDefault();
     const sectorId = (kind === 'folder' ? Store.folder(id) : Store.schedule(id)).sectorId;
     const items = [
-      { label: 'Abrir', icon: 'chevron', action: () => { location.hash = kind === 'folder' ? `#/s/${sectorId}/cronogramas/${id}` : `#/s/${sectorId}/c/${id}`; } },
+      { label: 'Abrir', icon: 'chevron', action: () => { location.hash = kind === 'folder' ? `${Z.base()}/cronogramas/${id}` : `${Z.base()}/c/${id}`; } },
       { label: 'Renomear', icon: 'edit', action: () => rename(kind, id) },
       { label: 'Mover para…', icon: 'folder', action: () => moveDialog(kind, id) },
     ];
     if (kind === 'folder') {
       items.push({ label: 'Nova subpasta', icon: 'plus', action: () => newFolder(sectorId, id) });
     } else {
+      items.push({ label: 'Dashboard deste cronograma', icon: 'dashboard', action: () => { location.hash = `${Z.base()}/c/${id}/dash`; } });
       items.push({ label: 'Editar período / feriados', icon: 'calendar', action: () => scheduleForm(sectorId, Store.schedule(id)) });
       items.push({ label: 'Duplicar (sem marcações de realizado)', icon: 'copy', action: () => { Store.duplicateSchedule(id); UI.toast('Cronograma duplicado'); } });
       items.push({ label: 'Imprimir', icon: 'print', action: () => Print.dialog(Store.schedule(id)) });
@@ -145,7 +146,7 @@
       el.addEventListener('drop', (e) => {
         e.preventDefault(); el.classList.remove('drop-over');
         const [kind, id] = (e.dataTransfer.getData('text/plain') || '').split(':');
-        const t = el.dataset.drop === 'root' ? null : el.dataset.drop;
+        const t = el.dataset.drop === 'root' ? Z.rootId() : el.dataset.drop;
         if (!kind || (kind === 'folder' && id === t)) return;
         if (Store.move(kind, id, t)) UI.toast('Item movido');
       });
@@ -154,9 +155,9 @@
 
   /* ---------- tela ---------- */
   function crumbs(sector, folderId, extra) {
-    const path = folderId ? Store.folderPath(folderId) : [];
-    return [`<a href="#/s/${sector.id}/cronogramas" data-drop="root">${U.esc(sector.name)}</a>`]
-      .concat(path.map((f) => `<a href="#/s/${sector.id}/cronogramas/${f.id}" data-drop="${f.id}">${U.esc(f.name)}</a>`))
+    const path = folderId ? Store.folderPath(folderId).filter((f) => f.id !== Z.rootId() && Store.folderPath(f.id).some((x) => x.id === Z.rootId())) : [];
+    return [`<a href="#/s/${sector.id}">${U.esc(sector.name)}</a>`, `<a href="${Z.base()}/cronogramas" data-drop="${Z.rootId()}">${U.esc(Z.ws ? Z.ws.name : '')}</a>`]
+      .concat(path.map((f) => `<a href="${Z.base()}/cronogramas/${f.id}" data-drop="${f.id}">${U.esc(f.name)}</a>`))
       .concat(extra ? [`<span>${extra}</span>`] : []).join('<i>›</i>');
   }
 
@@ -189,8 +190,10 @@
   }
 
   function render(sector, folderId) {
-    if (folderId && !Store.folder(folderId)) { location.hash = `#/s/${sector.id}/cronogramas`; return; }
-    const title = folderId ? U.esc(Store.folder(folderId).name) : 'Cronogramas';
+    if (folderId === Z.rootId()) folderId = null;
+    if (folderId && (!Store.folder(folderId) || !Store.folderPath(folderId).some((f) => f.id === Z.rootId()))) { location.hash = `${Z.base()}/cronogramas`; return; }
+    const here = folderId || Z.rootId();
+    const title = folderId ? U.esc(Store.folder(folderId).name) : U.esc(Z.ws.name);
     const el = Shell.render(sector, 'cronogramas', {
       title, crumbs: crumbs(sector, folderId),
       actions: `<button class="btn" id="d-folder">${UI.icon('folder', 17)}<span class="lbl">Nova pasta</span></button>
@@ -202,11 +205,11 @@
       const query = U.norm(sessionStorage.getItem('zeit:q') || '');
       let folders, schedules;
       if (query) {
-        folders = Store.state.folders.filter((f) => f.sectorId === sector.id && U.norm(f.name).includes(query));
+        folders = Store.state.folders.filter((f) => f.sectorId === sector.id && f.id !== Z.rootId() && Store.folderPath(f.id).some((x) => x.id === Z.rootId()) && U.norm(f.name).includes(query));
         schedules = C.sectorSchedules(sector.id).filter((s) => U.norm(s.title).includes(query) || s.activities.some((a) => U.norm(a.description).includes(query)));
       } else {
-        folders = Store.childFolders(sector.id, folderId);
-        schedules = Store.schedulesIn(sector.id, folderId);
+        folders = Store.childFolders(sector.id, here);
+        schedules = Store.schedulesIn(sector.id, here);
       }
       const empty = !folders.length && !schedules.length;
       el.querySelector('#d-items').innerHTML = empty
@@ -215,7 +218,7 @@
             ${viewMode === 'list' ? '<div class="list-head"><div></div><div>Nome</div><div>Período</div><div>Ativ.</div><div>Horas (real/plan)</div><div>Progresso</div><div>Atualizado</div></div>' : ''}
             ${folders.map(folderCard).join('')}${schedules.map(scheduleCard).join('')}</div>`;
       el.querySelectorAll('.item[data-kind]').forEach((it) => {
-        const open = () => { location.hash = it.dataset.kind === 'folder' ? `#/s/${sector.id}/cronogramas/${it.dataset.id}` : `#/s/${sector.id}/c/${it.dataset.id}`; };
+        const open = () => { location.hash = it.dataset.kind === 'folder' ? `${Z.base()}/cronogramas/${it.dataset.id}` : `${Z.base()}/c/${it.dataset.id}`; };
         it.addEventListener('dblclick', open);
         it.addEventListener('click', (e) => {
           el.querySelectorAll('.item.sel').forEach((x) => x.classList.remove('sel')); it.classList.add('sel'); e.stopPropagation();
@@ -243,15 +246,15 @@
 
     el.querySelector('#d-q').addEventListener('input', U.debounce((e) => { sessionStorage.setItem('zeit:q', e.target.value); draw(); }, 150));
     el.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { viewMode = b.dataset.v; localStorage.setItem('zeit:view', viewMode); render(sector, folderId); }));
-    document.getElementById('d-folder').addEventListener('click', () => newFolder(sector.id, folderId));
-    document.getElementById('d-new').addEventListener('click', () => scheduleForm(sector.id, null, folderId));
-    document.getElementById('d-import').addEventListener('click', () => Excel.importDialog(sector.id, folderId));
+    document.getElementById('d-folder').addEventListener('click', () => newFolder(sector.id, here));
+    document.getElementById('d-new').addEventListener('click', () => scheduleForm(sector.id, null, here));
+    document.getElementById('d-import').addEventListener('click', () => Excel.importDialog(sector.id, here));
     el.addEventListener('contextmenu', (e) => {
       if (e.target.closest('[data-kind]')) return;
       e.preventDefault();
       UI.menu(e.clientX, e.clientY, [
-        { label: 'Nova pasta', icon: 'folder', action: () => newFolder(sector.id, folderId) },
-        { label: 'Novo cronograma', icon: 'plus', action: () => scheduleForm(sector.id, null, folderId) },
+        { label: 'Nova pasta', icon: 'folder', action: () => newFolder(sector.id, here) },
+        { label: 'Novo cronograma', icon: 'plus', action: () => scheduleForm(sector.id, null, here) },
       ]);
     });
     el.addEventListener('click', () => el.querySelectorAll('.item.sel').forEach((x) => x.classList.remove('sel')));

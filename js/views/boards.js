@@ -111,7 +111,7 @@
       end = use.length ? use.map(Store.schedEnd).sort().pop() : `${y}-12-31`;
       rows = use.map((x) => {
         const st = C.stats(x.activities);
-        return { label: x.title, sub: `${U.num(st.real)}/${U.num(st.plan)}h`, range: [Store.schedStart(x), Store.schedEnd(x)], prog: st.progress, hol: x.holidays, onClick: () => { location.hash = `#/s/${sector.id}/c/${x.id}`; } };
+        return { label: x.title, sub: `${U.num(st.real)}/${U.num(st.plan)}h`, range: [Store.schedStart(x), Store.schedEnd(x)], prog: st.progress, hol: x.holidays, onClick: () => { location.hash = `${Z.base()}/c/${x.id}`; } };
       });
     }
     const days = U.days(start, end);
@@ -180,7 +180,7 @@
       const state = today < a ? 'Futuro' : today > b ? 'Encerrado' : 'Em andamento';
       const y = s.start.year;
       const yh = y !== lastYear ? `<div class="tl-year">${y}</div>` : ''; lastYear = y;
-      return `${yh}<a class="tl-item ${state === 'Em andamento' ? 'now' : ''}" href="#/s/${sector.id}/c/${s.id}">
+      return `${yh}<a class="tl-item ${state === 'Em andamento' ? 'now' : ''}" href="${Z.base()}/c/${s.id}">
         <div class="tl-dot"></div>
         <div class="tl-card">
           <div class="tl-top"><b>${U.esc(s.title)}</b><span class="state">${state}</span></div>

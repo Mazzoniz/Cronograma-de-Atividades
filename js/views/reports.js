@@ -16,7 +16,7 @@
         <div class="table-wrap flat"><table class="table">
           <thead><tr><th>Cronograma</th><th>Período</th><th class="num">Ativ.</th><th class="num">Real./Plan.</th><th class="no-wrap">Ações</th></tr></thead>
           <tbody>${list.map((s) => { const x = C.stats(s.activities); return `<tr>
-            <td><a href="#/s/${sector.id}/c/${s.id}"><b>${U.esc(s.title)}</b></a></td><td>${U.esc(C.periodLabel(s))}</td>
+            <td><a href="${Z.base()}/c/${s.id}"><b>${U.esc(s.title)}</b></a></td><td>${U.esc(C.periodLabel(s))}</td>
             <td class="num">${x.count}</td><td class="num">${U.hours(x.real)} / ${U.hours(x.plan)}</td>
             <td class="no-wrap"><button class="btn btn-sm" data-pf="${s.id}">${UI.icon('print', 15)} Preenchido</button>
               <button class="btn btn-sm" data-pb="${s.id}" title="Grade vazia na linha Real. para marcar à mão">${UI.icon('print', 15)} Para preencher</button>
@@ -50,7 +50,7 @@
     el.innerHTML = `
       <div class="cards-2">
         <section class="card"><h3>Setor</h3>
-          <div class="set-row"><span class="sector-ico lg">${sector.icon}</span><div><b>${U.esc(sector.name)}</b><div class="muted">${U.esc(sector.description || '')}</div></div>
+          <div class="set-row"><span class="sector-ico lg">${UI.sectorIcon(sector)}</span><div><b>${U.esc(sector.name)}</b><div class="muted">${U.esc(sector.description || '')}</div></div>
             <button class="btn push" id="c-sector">${UI.icon('edit', 16)} Editar</button></div>
         </section>
         <section class="card"><h3>Aparência</h3>
@@ -71,7 +71,7 @@
         <p class="muted small">Horas planejadas somam os dias <b>PL</b>; horas realizadas somam os dias <b>R</b> — igual às fórmulas das planilhas (CONT.SE × horas).</p>
       </section>
       <div class="cards-2">
-        <section class="card"><h3>Importar planilhas</h3><p class="muted">Traga os arquivos .xlsx existentes (layout "MANUTENÇÃO SITE"). Cada arquivo vira um cronograma.</p>
+        <section class="card"><h3>Importar planilhas</h3><p class="muted">Traga os arquivos .xlsx existentes (layout "MANUTENÇÃO SITE") para esta subpasta. Cada arquivo vira um cronograma.</p>
           <button class="btn" id="c-import">${UI.icon('upload', 16)} Importar .xlsx</button></section>
         <section class="card"><h3>Backup</h3><p class="muted">Os dados ficam neste navegador. Baixe um backup para guardar ou levar a outro computador.</p>
           <div class="btn-row"><button class="btn" id="c-exp">${UI.icon('download', 16)} Baixar backup</button><button class="btn" id="c-imp">${UI.icon('upload', 16)} Restaurar backup</button></div>
@@ -84,7 +84,7 @@
       const d = Object.fromEntries(new FormData(e.target).entries());
       st.defaultHours = +d.defaultHours || 8; st.opHoursPerDay = +d.opHoursPerDay || 24; Store.save(); UI.toast('Configurações salvas');
     });
-    el.querySelector('#c-import').addEventListener('click', () => Excel.importDialog(sector.id));
+    el.querySelector('#c-import').addEventListener('click', () => Excel.importDialog(sector.id, Z.rootId()));
     el.querySelector('#c-exp').addEventListener('click', () => UI.download(`Zeit-backup-${U.today()}.json`, Store.exportJSON()));
     const file = el.querySelector('#c-file');
     el.querySelector('#c-imp').addEventListener('click', async () => {

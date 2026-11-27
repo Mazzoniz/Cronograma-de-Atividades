@@ -482,7 +482,9 @@ tbody .c-n { background: var(--head) !important; color: var(--head-ink); font-si
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
 .modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal-foot { display: flex; align-items: center; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
-.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text-2); min-width: 0; }
+.field { display: block; font-size: 14px; font-weight: 600; color: var(--text-2); min-width: 0; }
+.field > *:not(.opt):not(datalist) { margin-top: 6px; }
+.field > span:first-child:not(.opt) { margin-top: 0; display: inline; }
 .check { display: flex; align-items: center; gap: 9px; font-size: 14.5px; cursor: pointer; color: var(--text); }
 .check-row { display: flex; flex-wrap: wrap; gap: 8px 22px; font-weight: 400; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -560,3 +562,61 @@ tbody .c-n { background: var(--head) !important; color: var(--head-ink); font-si
   .home-top { padding: 12px 14px; }
   .home-top .lbl { display: none; }
 }
+
+/* ===================== Ícone do setor (imagem) ===================== */
+.sector-img { width: 100%; height: 100%; object-fit: contain; border-radius: inherit; display: block; }
+.sector-card-ico .sector-img, .sector-ico .sector-img, .hero-ico .sector-img { padding: 4px; }
+.icon-mode { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+.icon-preview { width: 72px; height: 72px; border-radius: 16px; background: var(--primary-soft); display: grid; place-items: center; font-size: 36px; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border); }
+.icon-preview img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.icon-mode-opts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 400; }
+.icon-mode-opts .opt { flex-basis: 100%; }
+label.btn { cursor: pointer; }
+
+/* ===================== Escolha da subpasta ===================== */
+.hero-sector { padding-top: 8px; }
+.hero-ico { width: 88px; height: 88px; border-radius: 22px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); display: inline-grid; place-items: center; font-size: 44px; overflow: hidden; }
+.hero-sector-name { font-size: 38px !important; color: var(--text) !important; margin-top: 12px; }
+.space-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.space-card { position: relative; display: flex; gap: 14px; align-items: flex-start; padding: 18px 44px 18px 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); text-align: left; font: inherit; cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .12s; }
+.space-card:hover { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); text-decoration: none; transform: translateY(-1px); }
+.space-card.last { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+.space-card.add { border-style: dashed; background: var(--surface-2); }
+.space-ico { width: 54px; height: 54px; border-radius: 13px; display: grid; place-items: center; background: #fff4d6; color: #b7791f; flex-shrink: 0; }
+:root[data-theme="dark"] .space-ico { background: #3a2f14; color: #e3b341; }
+.space-card.add .space-ico { background: var(--surface-3); color: var(--text-2); }
+.space-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.space-txt strong { font-size: 18px; }
+.space-txt .muted { font-size: 14px; }
+.space-meta { font-size: 13px; color: var(--text-2); }
+.space-last { position: absolute; left: 18px; bottom: -10px; font-style: normal; font-size: 11.5px; font-weight: 650; background: var(--primary); color: var(--primary-ink); padding: 1px 9px; border-radius: 99px; }
+
+/* ===================== Menu lateral: setor + subpasta ===================== */
+a.sector-box { color: var(--text); }
+a.sector-box:hover { text-decoration: none; border-color: var(--primary); }
+.sector-ico { overflow: hidden; }
+.sector-txt strong { display: flex; align-items: center; gap: 5px; }
+.nav-foot { margin-top: auto; border-top: 1px solid var(--border); padding-top: 6px; }
+.nav-foot .nav-switch { margin-top: 0; border-top: 0; padding: 8px 12px; }
+
+/* ===================== Abas do cronograma ===================== */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 14px 0 0; overflow-x: auto; }
+.tab { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; color: var(--text-2); font-weight: 550; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tab:hover { color: var(--text); text-decoration: none; background: var(--surface-2); border-radius: 8px 8px 0 0; }
+.tab.on { color: var(--primary); border-bottom-color: var(--primary); }
+#sched-dash { margin-top: 6px; }
+
+/* ===================== Escolha do dashboard ===================== */
+.dash-pick { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 12px; margin-bottom: 8px; }
+.dash-chip { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; min-width: 200px; max-width: 300px; padding: 10px 8px 10px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 12px; cursor: pointer; text-align: left; font: inherit; color: var(--text); box-shadow: var(--shadow); }
+.dash-chip:hover { border-color: var(--border-strong); }
+.dash-chip.on { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); background: color-mix(in srgb, var(--primary-soft) 45%, var(--surface)); }
+.dash-chip.overview, .dash-chip.add { min-width: 0; padding-right: 16px; }
+.dash-chip.add { border-style: dashed; color: var(--text-2); box-shadow: none; background: var(--surface-2); }
+.chip-main { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 1px; }
+.chip-main b { font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-main small { font-size: 12.5px; color: var(--text-3); white-space: nowrap; }
+.chip-main .state { font-size: 11.5px; padding: 0 7px; }
+.chip-prog { display: block; height: 4px; background: var(--surface-3); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.chip-prog i { display: block; height: 100%; background: var(--good); }
+.overview-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 14px; flex-wrap: wrap; }

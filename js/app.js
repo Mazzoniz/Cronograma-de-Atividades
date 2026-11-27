@@ -1,4 +1,7 @@
-/* Zeit — inicialização e rotas */
+/* Zeit — inicialização e rotas
+ *   #/                         → escolha do setor
+ *   #/s/<setor>                → escolha da subpasta (área de trabalho) do setor
+ *   #/s/<setor>/w/<subpasta>/… → o sistema, limitado àquela subpasta */
 (function () {
   Store.load();
   UI.applyTheme(Store.settings.theme);
@@ -8,15 +11,20 @@
     document.getElementById('viz-tip').hidden = true;
     document.body.classList.remove('nav-open');
     const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean);
-    if (parts[0] !== 's') { Home.render(); return; }
+    if (parts[0] !== 's') { Z.clear(); Home.render(); return; }
     const sector = Store.sector(parts[1]);
     if (!sector) { location.hash = '#/'; return; }
-    localStorage.setItem('zeit:lastSector', sector.id);
-    const view = parts[2] || 'dashboard';
+    if (parts[2] !== 'w') { Z.set(sector, null); Spaces.render(sector); return; }
+    const ws = Store.folder(parts[3]);
+    if (!ws || ws.sectorId !== sector.id || ws.parentId) { location.hash = `#/s/${sector.id}`; return; }
+    Z.set(sector, ws);
+    localStorage.setItem(`zeit:lastWs:${sector.id}`, ws.id);
+    const view = parts[4] || 'cronogramas';
+    const arg = parts[5] || null;
     switch (view) {
       case 'dashboard': DashboardView.render(sector); break;
-      case 'cronogramas': Drive.render(sector, parts[3] || null); break;
-      case 'c': ScheduleView.render(sector, parts[3]); break;
+      case 'cronogramas': Drive.render(sector, arg); break;
+      case 'c': ScheduleView.render(sector, arg, parts[6] || 'grade'); break;
       case 'atividades': Boards.activities(sector); break;
       case 'kanban': Boards.kanban(sector); break;
       case 'gantt': Boards.gantt(sector); break;
@@ -27,7 +35,7 @@
       case 'ocorrencias': TeamView.failures(sector); break;
       case 'relatorios': ReportsView.reports(sector); break;
       case 'configuracoes': ReportsView.settings(sector); break;
-      default: location.hash = `#/s/${sector.id}/dashboard`;
+      default: location.hash = Z.url('cronogramas');
     }
   }
 

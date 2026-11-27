@@ -79,7 +79,7 @@
       return st;
     },
 
-    sectorSchedules(sectorId) { return Store.state.schedules.filter((s) => s.sectorId === sectorId); },
+    sectorSchedules(sectorId) { return Store.state.schedules.filter((s) => s.sectorId === sectorId && Z.inScope(s)); },
     sectorActivities(sectorId) {
       const out = [];
       C.sectorSchedules(sectorId).forEach((s) => s.activities.forEach((a) => out.push({ a, s })));
