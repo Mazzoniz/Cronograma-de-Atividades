@@ -1,0 +1,58 @@
+/* Zeit — impressão (A4 paisagem, letra grande, grade para preencher à mão) */
+#print-root { display: none; }
+
+@media print {
+  @page { size: A4 landscape; margin: 8mm 10mm; }
+  html, body { background: #fff !important; color: #000 !important; height: auto; }
+  body.printing #app, body.printing #modal-root, body.printing .toast, body.printing .ctx-menu, body.printing .viz-tip { display: none !important; }
+  body.printing #print-root { display: block; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+#print-root { font-family: Arial, "Segoe UI", sans-serif; color: #000; }
+.p-page { page-break-after: always; break-after: page; }
+.p-page:last-child { page-break-after: auto; break-after: auto; }
+.p-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2.5px solid #1f3a5f; padding-bottom: 5px; margin-bottom: 6px; }
+.p-head h1 { font-size: 21pt; margin: 0; letter-spacing: 0; }
+.p-head p { margin: 2px 0 0; font-size: 11pt; color: #333; }
+.p-upd { text-align: right; font-size: 11pt; font-weight: 700; display: flex; flex-direction: column; align-items: flex-end; }
+.p-upd span { font-size: 9pt; color: #1f5fa8; font-weight: 800; letter-spacing: .08em; }
+
+.p-grid { border-collapse: collapse; table-layout: fixed; width: 100%; }
+.p-grid th, .p-grid td { border: 0.8pt solid #555; padding: 1.2mm 1mm; vertical-align: middle; overflow: hidden; }
+.p-grid thead th { background: #23436e; color: #fff; font-weight: 700; text-align: center; font-size: .85em; }
+.p-grid thead tr:nth-child(2) th { background: #2f5585; font-size: .78em; }
+.p-grid th.pday { font-size: .9em; padding: .6mm 0; line-height: 1.05; }
+.p-grid th.pday small { display: block; font-size: .65em; font-weight: 400; }
+.p-grid th.pday.hol { background: #ffc000; color: #000; }
+.p-grid th.pday.we { background: #4a6488; }
+.p-grid td.pn { background: #23436e; color: #fff; font-weight: 700; text-align: center; }
+.p-grid td.pdesc { font-size: .92em; line-height: 1.2; }
+.p-men, .p-note { display: block; font-size: .78em; color: #333; margin-top: .6mm; }
+.p-note { font-style: italic; }
+.p-grid td.ppr { font-size: .78em; text-align: center; }
+.p-grid td.ph { text-align: center; font-weight: 700; }
+.p-grid td.pprog { text-align: center; font-weight: 700; }
+.p-grid td.pd { height: 8.5mm; text-align: center; font-weight: 700; font-size: .8em; padding: 0; }
+.p-grid td.pd small { display: block; font-size: .8em; }
+.p-grid td.pd.hol { background: #fff2c2; }
+.p-grid td.pd.we { background: #eef0f3; }
+.p-grid tr.p-real td { border-bottom-width: 1.6pt; }
+.p-grid tr.p-real td.pd:not(.mk) { background-image: none; }
+.p-grid td[rowspan] { border-bottom-width: 1.6pt; }
+.p-grid tbody tr { page-break-inside: avoid; break-inside: avoid; }
+
+.p-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4mm; font-size: 10pt; flex-wrap: wrap; }
+.p-legend { display: flex; flex-wrap: wrap; gap: 2mm 4mm; }
+.p-legend span { display: inline-flex; align-items: center; gap: 1.5mm; }
+.p-legend i { display: inline-grid; place-items: center; min-width: 8mm; height: 5mm; font-style: normal; font-weight: 700; font-size: 8pt; border: .5pt solid #555; }
+.p-sign { display: flex; gap: 8mm; font-size: 11pt; }
+
+.p-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3mm; margin: 4mm 0; }
+.p-kpis div { border: 1pt solid #999; border-radius: 2mm; padding: 2mm 3mm; }
+.p-kpis small { display: block; font-size: 9pt; color: #444; }
+.p-kpis b { font-size: 15pt; }
+.p-table { width: 100%; border-collapse: collapse; font-size: 11pt; }
+.p-table th, .p-table td { border: .8pt solid #777; padding: 1.8mm 2.5mm; text-align: left; }
+.p-table th { background: #23436e; color: #fff; }
+.p-table tbody tr:nth-child(even) td { background: #f3f5f8; }

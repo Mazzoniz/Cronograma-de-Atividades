@@ -1,44 +1,37 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cronograma de Atividades</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Zeit — Cronogramas de Atividades</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f5fa8'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='700' font-size='19' text-anchor='middle' fill='white'%3EZ%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/zeit.css">
+  <link rel="stylesheet" href="css/print.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#/">
-      <span class="brand-icon" aria-hidden="true">📅</span>
-      <span>Cronograma de Atividades</span>
-    </a>
-    <div class="topbar-search">
-      <input id="global-search" type="search" placeholder="Buscar pastas e cronogramas…" autocomplete="off">
-    </div>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" id="btn-export" title="Baixar backup (JSON)">⬇<span class="lbl"> Exportar</span></button>
-      <button class="btn btn-ghost" id="btn-import" title="Restaurar backup (JSON)">⬆<span class="lbl"> Importar</span></button>
-      <input type="file" id="import-file" accept="application/json,.json" hidden>
-      <button class="btn btn-ghost btn-icon" id="btn-sidebar" title="Mostrar/ocultar pastas" aria-label="Mostrar/ocultar pastas">☰</button>
-    </div>
-  </header>
-
-  <div class="layout">
-    <aside id="sidebar" class="sidebar" aria-label="Pastas"></aside>
-    <main id="main" class="main"></main>
-  </div>
-
+  <div id="app"></div>
+  <div id="print-root"></div>
   <div id="modal-root"></div>
   <div id="ctx-menu" class="ctx-menu" hidden></div>
   <div id="toast" class="toast" hidden></div>
+  <div id="viz-tip" class="viz-tip" hidden></div>
 
-  <script src="js/utils.js"></script>
+  <script src="vendor/exceljs.min.js"></script>
+  <script src="js/util.js"></script>
   <script src="js/store.js"></script>
   <script src="js/calc.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/explorer.js"></script>
-  <script src="js/schedule.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/views/shell.js"></script>
+  <script src="js/views/home.js"></script>
+  <script src="js/views/drive.js"></script>
+  <script src="js/views/schedule.js"></script>
+  <script src="js/views/dashboard.js"></script>
+  <script src="js/views/boards.js"></script>
+  <script src="js/views/team.js"></script>
+  <script src="js/views/reports.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/print.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

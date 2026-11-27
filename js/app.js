@@ -1,80 +1,46 @@
-/* Inicialização e roteamento por hash */
+/* Zeit — inicialização e rotas */
 (function () {
   Store.load();
-  let query = '';
+  UI.applyTheme(Store.settings.theme);
 
   function route() {
     UI.hideMenu();
-    const tip = document.getElementById('viz-tip');
-    if (tip) tip.hidden = true;
-    const h = location.hash || '#/';
-    let m;
-    if ((m = h.match(/^#\/cronograma\/([^/]+)(?:\/([^/]+))?/))) {
-      query = '';
-      document.getElementById('global-search').value = '';
-      Schedule.render(m[1], m[2] || 'atividades');
-    } else if ((m = h.match(/^#\/pasta\/([^/]+)/))) {
-      Explorer.render(m[1], query);
-    } else {
-      Explorer.render(null, query);
+    document.getElementById('viz-tip').hidden = true;
+    document.body.classList.remove('nav-open');
+    const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean);
+    if (parts[0] !== 's') { Home.render(); return; }
+    const sector = Store.sector(parts[1]);
+    if (!sector) { location.hash = '#/'; return; }
+    localStorage.setItem('zeit:lastSector', sector.id);
+    const view = parts[2] || 'dashboard';
+    switch (view) {
+      case 'dashboard': DashboardView.render(sector); break;
+      case 'cronogramas': Drive.render(sector, parts[3] || null); break;
+      case 'c': ScheduleView.render(sector, parts[3]); break;
+      case 'atividades': Boards.activities(sector); break;
+      case 'kanban': Boards.kanban(sector); break;
+      case 'gantt': Boards.gantt(sector); break;
+      case 'timeline': Boards.timeline(sector); break;
+      case 'calendario': Boards.calendar(sector); break;
+      case 'equipe': TeamView.team(sector); break;
+      case 'analytics': TeamView.analytics(sector); break;
+      case 'ocorrencias': TeamView.failures(sector); break;
+      case 'relatorios': ReportsView.reports(sector); break;
+      case 'configuracoes': ReportsView.settings(sector); break;
+      default: location.hash = `#/s/${sector.id}/dashboard`;
     }
-    Explorer.renderSidebar();
-    document.body.classList.remove('sidebar-open');
   }
 
   window.addEventListener('hashchange', route);
   Store.onChange(() => {
-    // preserva rolagem ao re-renderizar após alterações
-    const main = document.getElementById('main');
-    const top = main.scrollTop;
-    const gs = main.querySelector('.gantt-scroll');
-    const left = gs ? gs.scrollLeft : null;
+    // re-renderiza mantendo as posições de rolagem
+    const content = document.getElementById('content');
+    const grid = document.getElementById('grid-wrap') || document.querySelector('.gantt-wrap');
+    const pos = { top: content ? content.scrollTop : 0, gl: grid ? grid.scrollLeft : 0, gt: grid ? grid.scrollTop : 0, win: window.scrollY };
     route();
-    main.scrollTop = top;
-    const gs2 = main.querySelector('.gantt-scroll');
-    if (gs2 && left != null) gs2.scrollLeft = left;
+    const c2 = document.getElementById('content'); if (c2) c2.scrollTop = pos.top;
+    const g2 = document.getElementById('grid-wrap') || document.querySelector('.gantt-wrap'); if (g2) { g2.scrollLeft = pos.gl; g2.scrollTop = pos.gt; }
+    window.scrollTo(0, pos.win);
   });
-
-  const search = document.getElementById('global-search');
-  search.addEventListener('input', () => {
-    query = search.value.trim();
-    if (location.hash.startsWith('#/cronograma/')) {
-      if (query) { location.hash = '#/'; return; }
-    }
-    const m = location.hash.match(/^#\/pasta\/([^/]+)/);
-    Explorer.render(m ? m[1] : null, query);
-  });
-
-  document.getElementById('btn-export').addEventListener('click', () => {
-    UI.download(`cronogramas-backup-${U.today()}.json`, Store.exportJSON());
-    UI.toast('Backup exportado');
-  });
-  const file = document.getElementById('import-file');
-  document.getElementById('btn-import').addEventListener('click', async () => {
-    if (await UI.confirm('Importar um backup <strong>substitui todos os dados atuais</strong> (pastas e cronogramas). Deseja continuar?', { title: 'Importar backup', okLabel: 'Escolher arquivo', danger: false })) {
-      file.click();
-    }
-  });
-  file.addEventListener('change', () => {
-    const f = file.files[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        Store.importJSON(reader.result);
-        location.hash = '#/';
-        UI.toast('Backup importado com sucesso');
-      } catch (e) {
-        UI.toast(e.message || 'Arquivo inválido');
-      }
-      file.value = '';
-    };
-    reader.readAsText(f);
-  });
-  document.getElementById('btn-sidebar').addEventListener('click', () => {
-    if (window.innerWidth <= 860) document.body.classList.toggle('sidebar-open');
-    else document.body.classList.toggle('sidebar-hidden');
-  });
-
   route();
 })();

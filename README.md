@@ -1,59 +1,98 @@
-# Cronograma de Atividades
+# Zeit — Cronogramas de Atividades
 
-Sistema web para organizar cronogramas de atividades em **pastas**, no estilo do Windows Explorer.
+Sistema web para planejar e acompanhar cronogramas de **paradas, feriados e férias coletivas por KW**
+(semana do calendário), no mesmo formato das planilhas "Atividades KWxx" usadas pela equipe.
 
-Não precisa de instalação nem de servidor: basta abrir o `index.html` no navegador.
-Os dados ficam salvos no próprio navegador (localStorage), e dá para exportar ou importar um backup em JSON.
+Não precisa de instalação: basta abrir o `index.html` no navegador (Chrome, Edge ou Firefox).
+Funciona sem internet. A biblioteca de Excel fica dentro do projeto, em `vendor/`.
 
-## Como usar
+> **Dados:** por enquanto, tudo é salvo no navegador (localStorage). A camada de dados (`js/store.js`)
+> está isolada para ser ligada ao banco da intranet depois. Até lá, use **Configurações → Backup**
+> para levar os dados de um computador a outro.
 
-1. **Abra** o arquivo `index.html` no navegador (Chrome, Edge, Firefox…).
-2. **Organize em pastas**: crie pastas e subpastas, renomeie, mova (arrastando ou pelo menu do clique direito) e exclua.
-3. **Crie um cronograma** dentro de uma pasta: dê um título e escolha o **mês de início** e o **mês de término**
-   (por exemplo, Novembro/2026 a Dezembro/2026). Esse é o período do cronograma.
-4. **Abra o cronograma** (duplo clique). Lá dentro há quatro abas:
+## Organização
 
-| Aba | O que tem |
+**Setor → Pastas → Cronogramas**, como um drive:
+
+1. Na tela inicial, escolha o **setor** (Manutenção Site, Armação, Montagem, Estamparia… ou crie outros).
+2. Em **Cronogramas**, crie pastas (ex.: `2026`) e subpastas. Arraste itens para mover e use o clique direito para mais opções.
+3. Crie um cronograma com o **título** (o feriado ou a ação) e as **semanas inicial e final (KW)**. O sistema mostra
+   as datas e os meses correspondentes. Os dias de **feriado ou parada** ficam destacados em laranja.
+
+## A grade do cronograma
+
+Igual à planilha: **N°, Descrição da ação, Fornecedor, Resp., Situação, P/R (Plan./Real.), Horas**, a grade
+dia a dia com **Mês / KW / dia** no cabeçalho, e **Progresso**.
+
+- Escolha um código na barra **Marcar** e clique ou arraste nos dias:
+
+  | Código | Significado |
+  |---|---|
+  | PL | Planejado |
+  | R | Realizado |
+  | P | Parada |
+  | A | Atraso |
+  | PE | Pendente |
+  | C | Concluído |
+  | N | Cancelado |
+  | PO | Postergado |
+
+  O modo **Automático** coloca PL na linha Plan. e R na linha Real.
+- **Horas** = dias marcados × horas do dia, igual à fórmula `CONT.SE(...;"PL")*8` da planilha.
+  **Progresso** = Real. ÷ Plan.
+- **Dia inteiro ou por horas:** em cada atividade, marque *Dia inteiro* (cada dia vale X horas) ou desmarque para
+  lançar as horas de cada dia (dois cliques no dia).
+- **Homens necessários:** marque a caixa e informe a quantidade. O sistema calcula o **homem-hora (HH)**.
+- **Adicionar observação:** para registrar, por exemplo, que um serviço foi descontinuado ou adiado.
+- **Situação:** é automática pela grade (Concluído, Em andamento, Postergado, Cancelado, Atrasado…) ou escolhida à mão.
+- Clique no número de um dia para marcá-lo ou desmarcá-lo como feriado.
+
+## Telas
+
+| Tela | O que mostra |
 |---|---|
-| **Atividades** | Lista de atividades com responsável, início, término, dias úteis, horas estimadas, horas realizadas, progresso, status e prioridade. Filtros e ordenação. O término pode ser **calculado automaticamente** pelas horas e pela jornada diária do responsável. |
-| **Responsáveis** | Pessoas do cronograma, com função e **horas disponíveis por dia**. Mostra capacidade no período, horas alocadas, ocupação (%) e alerta de sobrecarga. |
-| **Horas** | Matriz de horas planejadas × capacidade por responsável, **por mês ou por semana**, com cores para ocupação e sobrecarga. Também mostra horas estimadas, realizadas e restantes de cada atividade. |
-| **Dashboard** | Indicadores (total de atividades, horas planejadas e realizadas, **duração estimada**, tempo restante, progresso geral, ocupação da equipe), **gráfico de Gantt**, horas por responsável, status das atividades e horas planejadas por semana. |
+| **Dashboard** | MTBF, MTTR, disponibilidade, aderência ao plano, horas e HH realizados, backlog, gráficos e cronogramas recentes |
+| **Cronogramas** | Drive de pastas e cronogramas |
+| **Todas Atividades** | Lista de atividades do setor com filtros |
+| **Kanban** | Atividades por situação; arraste o cartão para mudar a situação |
+| **Gantt** | Cronogramas do ano, ou as atividades de um cronograma (planejado × realizado) |
+| **Equipe** | Horas por responsável e por fornecedor |
+| **Analytics** | HH por mês, situação, horas por fornecedor e por responsável, resumo por cronograma |
+| **Timeline** | Histórico dos cronogramas por ano |
+| **Calendário** | Mês a mês, com as atividades marcadas e os feriados |
+| **Ocorrências** | Registro de falhas por equipamento → **MTBF, MTTR e disponibilidade** |
+| **Relatórios** | Impressão, Excel e CSV |
+| **Configurações** | Setor, tema claro/escuro, horas padrão, horas de operação, importação e backup |
 
-### Como o tempo é calculado
+## Excel e impressão
 
-- **Dias úteis**: segunda a sexta (fins de semana não contam).
-- **Dias necessários** de uma atividade = horas estimadas ÷ horas por dia do responsável (arredondado para cima).
-- **Capacidade** de um responsável = horas por dia × dias úteis do período do cronograma.
-- **Duração estimada** do cronograma = dias úteis entre o início da primeira atividade e o término da última.
-- As horas de cada atividade são distribuídas igualmente pelos seus dias úteis para montar a carga por mês/semana.
-- Uma atividade não concluída cujo término já passou aparece como **Atrasada**.
+- **Importar:** em *Cronogramas → Importar Excel*, selecione os arquivos `.xlsx` existentes. Cada arquivo vira um
+  cronograma (título, KW, feriados, atividades, códigos da grade e horas por dia tirados das fórmulas).
+  Há a opção de criar pastas por ano automaticamente.
+- **Exportar:** o botão *Excel* gera a planilha no mesmo layout (cores, grade, fórmulas de horas e progresso,
+  aba Legendas). Em *Relatórios* dá para exportar o setor inteiro, com uma aba por cronograma.
+- **Imprimir** (A4 deitada, letra grande de 11, 13 ou 15 pt):
+  - **Preenchido:** como está no sistema.
+  - **Para preencher:** mantém o planejado e deixa a linha Real. em branco para marcar à mão.
+  - **Em branco:** só as atividades e a grade, para quando as datas ainda não são conhecidas.
 
-### Atalhos no explorador
-
-- Duplo clique / Enter: abrir
-- Clique direito: menu (abrir, renomear, mover, duplicar, excluir)
-- F2: renomear · Delete: excluir
-- Arrastar e soltar: mover para outra pasta (inclusive na árvore lateral e no caminho do topo)
-
-### Backup
-
-Use **Exportar** no topo para baixar todos os dados em JSON e **Importar** para restaurá-los
-(em outro computador ou navegador, por exemplo). Dentro de um cronograma, o menu `⋯` permite exportar as atividades em CSV (abre no Excel) e imprimir.
+  Linhas extras em branco ficam disponíveis para atividades novas. Se os dias não couberem em uma folha, a grade
+  é dividida por semana.
 
 ## Estrutura
 
 ```
-index.html        Página principal
-css/styles.css    Estilos (tema claro e escuro automáticos)
-js/utils.js       Datas, formatação e utilitários
-js/store.js       Armazenamento de pastas e cronogramas
-js/calc.js        Cálculos de duração, capacidade, carga e progresso
-js/ui.js          Modais, menus e avisos
-js/explorer.js    Explorador de pastas e árvore lateral
-js/schedule.js    Abas Atividades, Responsáveis e Horas
-js/dashboard.js   Dashboard e gráficos
-js/app.js         Inicialização e navegação
+index.html            Página principal
+css/zeit.css          Visual (tema claro e escuro)
+css/print.css         Folha de impressão
+vendor/exceljs.min.js Leitura e escrita de .xlsx (ExcelJS 4.4.0, MIT)
+js/util.js            Datas, semanas ISO (KW), formatação
+js/store.js           Dados: setores, pastas, cronogramas, falhas (trocar aqui pela API da intranet)
+js/calc.js            Horas, HH, progresso, situação, MTBF/MTTR
+js/ui.js              Ícones, modais, menus, tema
+js/charts.js          Gráficos em SVG
+js/excel.js           Importação e exportação de Excel
+js/print.js           Versões para impressão
+js/views/*.js         Telas
+js/app.js             Rotas
 ```
-
-Para publicar online, basta ativar o **GitHub Pages** no repositório (Settings → Pages → branch principal, pasta raiz).
